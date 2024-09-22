@@ -1,0 +1,140 @@
+customer_details = {
+    "customer_name": "",
+    "address": "",
+    "mobile_number": 0,
+    "pincode": 0,
+    "date": 0
+}
+
+# Store phone data
+phone_data = {
+    "Samsung": {
+        "Galaxy M14": {"ram": "6GB", "price": 15000, "discount": 10},
+        "Galaxy S21 FE 5G": {"ram": "8GB", "price": 40000, "discount": 15},
+        "Galaxy S23 Ultra 5G": {"ram": "12GB", "price": 80000, "discount": 20}
+    },
+    "Realme": {
+        "Narzo N53": {"ram": "6GB", "price": 12000, "discount": 5},
+        "12 Pro": {"ram": "8GB", "price": 25000, "discount": 12},
+        "GT Neo 3 5G": {"ram": "12GB", "price": 35000, "discount": 18}
+    },
+    "OnePlus": {
+        "Nord CE 2 Lite 5G": {"ram": "6GB", "price": 18000, "discount": 8},
+        "Nord CE 3 Lite 5G": {"ram": "8GB", "price": 23000, "discount": 10},
+        "Ace 2V": {"ram": "12GB", "price": 45000, "discount": 20}
+    }
+}
+
+# Function to calculate discounted price
+def calculate_discounted_price(price, discount):
+    return price - (price * discount / 100)
+
+# Input validation function for numbers
+def input_number(prompt, length=None):
+    while True:
+        try:
+            value = int(input(prompt))
+            if length and len(str(value)) != length:
+                print(f"Please enter a valid {length}-digit number.")
+                continue
+            return value
+        except ValueError:
+            print("Invalid input! Please enter a valid number.")
+
+# Function to get customer details
+def get_customer_details():
+    customer_details["customer_name"] = input("Enter the customer name: ")
+    customer_details["address"] = input("Enter address: ")
+    customer_details["mobile_number"] = input_number("Enter mobile number (10 digits): ", 10)
+    customer_details["pincode"] = input_number("Enter pin code (6 digits): ", 6)
+    customer_details["date"] = input_number("Enter date (as number): ")
+
+# Function to display brands
+def display_brands():
+    print("\nAvailable brands:")
+    for i, brand in enumerate(phone_data, 1):
+        print(f"{i}. {brand}")
+
+# Function to ask for phone model based on brand
+def ask_for_phone(brand):
+    print(f"\nAvailable models in {brand}:")
+    models = list(phone_data[brand].keys())
+    for i, model in enumerate(models, 1):
+        print(f"{i}. {model} ({phone_data[brand][model]['ram']} RAM)")
+
+    while True:
+        try:
+            selected_model_index = int(input(f"\nEnter the number of the {brand} phone you're interested in: "))
+            if 1 <= selected_model_index <= len(models):
+                selected_model = models[selected_model_index - 1]
+                return selected_model
+            else:
+                print("Invalid selection! Please enter a valid number.")
+        except ValueError:
+            print("Invalid input! Please enter a valid number.")
+
+# Function to get phone selection and calculate price
+def select_phone():
+    display_brands()
+    brand_choice = input_number("Enter the number of the brand you're interested in: ")
+
+    brand_list = list(phone_data.keys())
+    if 1 <= brand_choice <= len(brand_list):
+        brand = brand_list[brand_choice - 1]
+    else:
+        print("Invalid brand choice! Please try again.")
+        return select_phone()  # Recursive call to retry
+
+    model = ask_for_phone(brand)
+    phone = phone_data[brand][model]
+    original_price = phone["price"]
+    discount = phone["discount"]
+    discounted_price = calculate_discounted_price(original_price, discount)
+
+    print(f"\nYou selected {brand} {model}")
+    print(f"Original Price: ₹{original_price}")
+    print(f"Discount: {discount}%")
+    print(f"Discounted Price: ₹{discounted_price}")
+
+    return {"brand": brand, "model": model, "discounted_price": discounted_price}
+
+# Function to display final purchase summary
+def display_summary(selected_phones):
+    print("\n**********************************  PURCHASE SUMMARY  ****************************************")
+    print(f"Customer Name: {customer_details['customer_name']}")
+    print(f"Address: {customer_details['address']}")
+    print(f"Mobile Number: {customer_details['mobile_number']}")
+    print(f"Pincode: {customer_details['pincode']}")
+    print(f"Purchase Date: {customer_details['date']}")
+    total_cost = 0
+    for phone in selected_phones:
+        print(f"Selected Phone: {phone['brand']} {phone['model']}, Discounted Price: ₹{phone['discounted_price']}")
+        total_cost += phone["discounted_price"]
+    print(f"\nTotal Cost: ₹{total_cost}")
+    print("\n**")
+
+# Main function to run the program
+def main():
+    print("*************************************  MOBILE PHONES  **********************************************")
+    print("***********************************  ESPECIALLY FOR YOU  *******************************************")
+    print("*******************************  SALE STARTS ==>UP TO 20% OFF  *******************************************")
+    print()
+
+    get_customer_details()
+
+    selected_phones = []
+    
+    while True:
+        phone = select_phone()
+        if phone:
+            selected_phones.append(phone)
+
+        another = input("Do you want to select another phone? (yes/no): ").lower()
+        if another != "yes":
+            break
+
+    if selected_phones:
+        display_summary(selected_phones)
+
+if __name__ == "__main__":
+    main()
